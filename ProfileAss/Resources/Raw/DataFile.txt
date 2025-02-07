@@ -1,8 +1,0 @@
-﻿[
-	{
-	 "firstname" : "Lebohang"
-	 "lastname" : "Lehutjo"
-	 "email": "lebohang.lehutjo@gmail.com"
-	 "boi": "Wake up to reality"
-	}
-]

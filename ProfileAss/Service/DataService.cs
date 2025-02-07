@@ -11,19 +11,21 @@ namespace ProfileAss.Service
 {
     public class DataService : IDataService
     {
-        Profile profiles;
+        List<Profile> profiles = new List<Profile>();
 
        
 
-        public  async Task<Profile> ReadTextFile()
+
+        public  async Task<List<Profile>> ReadTextFile()
 
 
         {
 
             try
             {
+                if (profiles.Count > 0) { return profiles; }
                 //open the file from the app package
-                using var stream = await FileSystem.OpenAppPackageFileAsync("DataFile.txt");
+                using var stream = await FileSystem.OpenAppPackageFileAsync("ProfileData.json");
 
                 //Read the entire content of the file
                 using var reader = new StreamReader(stream);
@@ -33,10 +35,7 @@ namespace ProfileAss.Service
                 // If you have a list of profiles,
 
 
-                var profiles = JsonSerializer.Deserialize<Profile>(content, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
+                 profiles = JsonSerializer.Deserialize<List<Profile>>(content);
 
                 return profiles;
 

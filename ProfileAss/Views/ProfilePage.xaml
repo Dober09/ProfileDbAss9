@@ -2,19 +2,21 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ProfileAss.Views.ProfilePage"
-            
+             xmlns:vm ="clr-namespace:ProfileAss.ViewModel"
+             x:DataType="vm:ProfileViewModel"
              Title="Profile">
    
         
         
                     <Grid  RowDefinitions="auto,auto,auto,auto, auto" WidthRequest="200" Margin="10">
-                            <Entry Placeholder="Enter Firstname" Grid.Row="0" Text="lebo"  />
-                            <Entry Placeholder="Enter Lastname" Grid.Row="1"  />
-                            <Entry Placeholder="Enter Email"  Grid.Row="2" />
-                            <Entry Placeholder="Enter Boi"  Grid.Row="3" />
+                            <Entry Placeholder="Enter Firstname" Grid.Row="0" Text="{Binding Profiles[0].firstname}"  />
+                            <Entry Placeholder="Enter Lastname" Grid.Row="1"  Text="{Binding Profiles[0].lastname}" />
+                            <Entry Placeholder="Enter Email"  Grid.Row="2"   Text="{Binding Profiles[0].email }"/>
+                            <Entry Placeholder="Enter Boi"  Grid.Row="3"  Text="{Binding Profiles[0].bio }"/>
 
-                            <Button Text="Save" Grid.Row="4"/>  
-                    </Grid>
+                            <Button Text="Save" Grid.Row="4"/>
+     
+    </Grid>
             
 
 </ContentPage>

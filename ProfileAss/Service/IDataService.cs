@@ -6,7 +6,7 @@ namespace ProfileAss.Service
 {
     public interface IDataService
     {
-        Task<Profile> ReadTextFile();
+        Task<List<Profile>> ReadTextFile();
 
         Task<Profile> WirteTextToFile();
 

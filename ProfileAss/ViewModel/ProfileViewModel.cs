@@ -3,36 +3,53 @@ using ProfileAss.Service;
 
 using ProfileAss.Model;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using System.Collections.ObjectModel;
 
 namespace ProfileAss.ViewModel
 {
-    public class ProfileViewModel:  ObservableObject
+    public partial class ProfileViewModel:  ObservableObject
     {
 
-        Profile Profile { get; set; }
+       
         DataService _dataService;
+
+        [ObservableProperty]
+        private ObservableCollection<Profile> profiles;
+
+        [ObservableProperty]
+        private Profile _profile;
 
         public ProfileViewModel(DataService dataService)
         {
             _dataService = dataService;
+              
+        
 
-            Initialize();  
+             
         }
 
 
-        public async void Initialize()
+        [RelayCommand]
+        private async Task LoadDataAsync()
         {
-            var profile = await _dataService.ReadTextFile();
-
-           Profile = new Profile { 
-               firstname = profile.firstname,
-               lastname=profile.lastname,
-               email = profile.email,
-                boi = profile.boi,
-           };
-
+            try
+            {
+                var profiles = await _dataService.ReadTextFile();
+               
+                Profiles = new ObservableCollection<Profile>(profiles);
+            }
+            catch (Exception ex) { 
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+            }
 
         }
+
+
+
+
+
+
 
 
 
