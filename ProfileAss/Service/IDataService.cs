@@ -10,5 +10,6 @@ namespace ProfileAss.Service
 
         Task WriteToFile(Profile profile);
 
+        Task<string> UploadLocalAsync(string filename, Stream stream);
     }
 }

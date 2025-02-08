@@ -49,6 +49,16 @@ namespace ProfileAss.Service
             
         }
 
+        public async Task<string> UploadLocalAsync(string filename, Stream stream)
+        {
+            var localPath =  Path.Combine(FileSystem.AppDataDirectory, filename);
+            using var fs = new FileStream(localPath, FileMode.Create, FileAccess.Write);
+            await fs.CopyToAsync(stream);
+
+            return localPath;
+        }
+
+
         public async Task WriteToFile(Profile p)
         {
             try

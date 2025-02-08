@@ -19,6 +19,8 @@ namespace ProfileAss.ViewModel
         [ObservableProperty]
         private Profile profile;
 
+        
+
         public ProfileViewModel(DataService dataService)
         {
             _dataService = dataService;
@@ -63,6 +65,39 @@ namespace ProfileAss.ViewModel
 
 
 
+
+        }
+
+
+        [RelayCommand]
+        private async Task UploadImage()
+        {
+            await ShowImagePicker();
+
+        }
+
+
+      
+        private async Task ShowImagePicker()
+        {
+           var fileResult = await FilePicker.PickAsync(new PickOptions
+            {
+                PickerTitle = "Please select an image",
+                FileTypes = FilePickerFileType.Images
+            });
+
+
+            if (fileResult != null) {
+
+                var stream = await fileResult.OpenReadAsync() ;
+                
+                
+                await _dataService.UploadLocalAsync(fileResult.FileName,stream);
+                
+                
+        
+
+            }
         }
 
 
