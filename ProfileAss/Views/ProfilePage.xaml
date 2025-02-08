@@ -9,14 +9,16 @@
         
         
                     <Grid  RowDefinitions="auto,auto,auto,auto, auto" WidthRequest="200" Margin="10">
-                            <Entry Placeholder="Enter Firstname" Grid.Row="0" Text="{Binding Profiles[0].firstname}"  />
-                            <Entry Placeholder="Enter Lastname" Grid.Row="1"  Text="{Binding Profiles[0].lastname}" />
-                            <Entry Placeholder="Enter Email"  Grid.Row="2"   Text="{Binding Profiles[0].email }"/>
-                            <Entry Placeholder="Enter Boi"  Grid.Row="3"  Text="{Binding Profiles[0].bio }"/>
+                            <Entry Placeholder="Enter Firstname" Grid.Row="0" Text="{Binding Profile.firstname , Mode=TwoWay}"  />
+                            <Entry Placeholder="Enter Lastname" Grid.Row="1"  Text="{Binding Profile.lastname, Mode=TwoWay}" />
+                            <Entry Placeholder="Enter Email"  Grid.Row="2"   Text="{Binding Profile.email , Mode=TwoWay}"/>
+                            <Entry Placeholder="Enter Boi"  Grid.Row="3"  Text="{Binding Profile.bio , Mode=TwoWay}"/>
 
-                            <Button Text="Save" Grid.Row="4"/>
-     
-    </Grid>
+                            <Button Text="Save" Grid.Row="4" Command="{Binding OnsaveCommand}"/>
+
+                            <Button Text="Image" Clicked=" PickAndShowImage"/>
+
+                    </Grid>
             
 
 </ContentPage>

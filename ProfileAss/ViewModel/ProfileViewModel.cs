@@ -14,18 +14,17 @@ namespace ProfileAss.ViewModel
        
         DataService _dataService;
 
-        [ObservableProperty]
-        private ObservableCollection<Profile> profiles;
+        
 
         [ObservableProperty]
-        private Profile _profile;
+        private Profile profile;
 
         public ProfileViewModel(DataService dataService)
         {
             _dataService = dataService;
               
         
-
+            Profile = new Profile();
              
         }
 
@@ -35,13 +34,34 @@ namespace ProfileAss.ViewModel
         {
             try
             {
-                var profiles = await _dataService.ReadTextFile();
-               
-                Profiles = new ObservableCollection<Profile>(profiles);
+                // check if the this is null 
+               Profile = await _dataService.ReadTextFile() ?? new Profile();
             }
             catch (Exception ex) { 
                 System.Diagnostics.Debug.WriteLine(ex.Message);
             }
+
+        }
+
+
+        [RelayCommand]
+        private async Task OnsaveAsync()
+        {
+            try
+            {
+
+               //write to json file 
+                await _dataService.WriteToFile(Profile);
+                System.Diagnostics.Debug.WriteLine($"Profile saved successfully: {Profile.firstname}");
+            }
+            catch(Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Profile not saved failed: {ex.Message}");
+
+            }
+            
+
+
 
         }
 

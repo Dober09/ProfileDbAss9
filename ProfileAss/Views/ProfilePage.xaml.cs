@@ -21,6 +21,10 @@ namespace ProfileAss.Views
 			await((ProfileViewModel)BindingContext).LoadDataCommand.ExecuteAsync(null);
 		}
 
-		
-	}
+
+
+      
+
+
+    }
 }

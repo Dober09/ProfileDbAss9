@@ -1,58 +1,68 @@
 ﻿
+
 using ProfileAss.Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+
 using System.Text.Json;
-using System.Threading.Tasks;
+
 
 namespace ProfileAss.Service
 {
     public class DataService : IDataService
     {
-        List<Profile> profiles = new List<Profile>();
-
+        
+        private readonly string filePath;
        
 
 
-        public  async Task<List<Profile>> ReadTextFile()
+        public DataService()
+        {
+            filePath = Path.Combine(FileSystem.AppDataDirectory, "ProfileData.json");
+        }
+        public  async Task<Profile> ReadTextFile()
 
 
         {
 
             try
             {
-                if (profiles.Count > 0) { return profiles; }
-                //open the file from the app package
-                using var stream = await FileSystem.OpenAppPackageFileAsync("ProfileData.json");
 
-                //Read the entire content of the file
-                using var reader = new StreamReader(stream);
-                var content = await reader.ReadToEndAsync();
+                //check if file exist
+                if (!File.Exists(filePath)) { 
+                    return new Profile();
+                }
+                System.Diagnostics.Debug.WriteLine($"filePath ----> ${filePath}");
 
-                //Deserialize the content
-                // If you have a list of profiles,
+                var content = await File.ReadAllTextAsync(filePath);
+                return JsonSerializer.Deserialize<Profile>(content);
+              
+               
 
-
-                 profiles = JsonSerializer.Deserialize<List<Profile>>(content);
-
-                return profiles;
-
+             
             }
             catch(Exception ex)
             {
                 Console.WriteLine($"Error reading profiles : {ex.Message}");
-                return null;
+                return new Profile();
 
             }
            
             
         }
 
-        public Task<Profile> WirteTextToFile()
+        public async Task WriteToFile(Profile p)
         {
-            throw new NotImplementedException();
+            try
+            {
+            
+                string json = JsonSerializer.Serialize(p);
+                await File.WriteAllTextAsync(filePath,json);
+            
+                System.Diagnostics.Debug.WriteLine($"Succefully wrote the info");
+            }
+            catch (Exception ex) {
+
+                System.Diagnostics.Debug.WriteLine($"error failed to save profile {ex.Message}");
+            }
         }
     }
 }
