@@ -94,9 +94,6 @@ namespace ProfileAss.ViewModel
                 
                 await _dataService.UploadLocalAsync(fileResult.FileName,stream);
                 
-                
-        
-
             }
         }
 
