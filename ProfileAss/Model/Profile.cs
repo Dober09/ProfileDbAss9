@@ -17,6 +17,8 @@ namespace ProfileAss.Model
         [JsonPropertyName("bio")]
         public string bio { get; set; }
 
+        [JsonPropertyName("imagePath")]
+        public string imagePath { get; set; }
 
     }
 }

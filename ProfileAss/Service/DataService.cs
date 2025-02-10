@@ -16,7 +16,7 @@ namespace ProfileAss.Service
 
         public DataService()
         {
-            filePath = Path.Combine(FileSystem.AppDataDirectory, "ProfileData.json");
+            filePath = Path.Combine(FileSystem.AppDataDirectory,"ProfileData.txt");
         }
         public  async Task<Profile> ReadTextFile()
 
@@ -33,6 +33,7 @@ namespace ProfileAss.Service
                 System.Diagnostics.Debug.WriteLine($"filePath ----> ${filePath}");
 
                 var content = await File.ReadAllTextAsync(filePath);
+
                 return JsonSerializer.Deserialize<Profile>(content);
               
                
@@ -52,7 +53,8 @@ namespace ProfileAss.Service
         public async Task<string> UploadLocalAsync(string filename, Stream stream)
         {
             var localPath =  Path.Combine(FileSystem.AppDataDirectory, filename);
-            using var fs = new FileStream(localPath, FileMode.Create, FileAccess.Write);
+            using var fs =  File.Create(localPath);
+            stream.Position = 0;
             await fs.CopyToAsync(stream);
 
             return localPath;
@@ -70,7 +72,6 @@ namespace ProfileAss.Service
                 System.Diagnostics.Debug.WriteLine($"Succefully wrote the info");
             }
             catch (Exception ex) {
-
                 System.Diagnostics.Debug.WriteLine($"error failed to save profile {ex.Message}");
             }
         }
