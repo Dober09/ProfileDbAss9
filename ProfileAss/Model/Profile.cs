@@ -1,24 +1,24 @@
 ﻿
-using System.Text.Json.Serialization;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProfileAss.Model
 {
+    [Table("person")] //Add this attribute
     public class Profile
     {
-        [JsonPropertyName("firstname")]
+
+        public  int Id { get; set; }
+        
         public string firstname { get; set; }
 
-        [JsonPropertyName("lastname")]
+      
         public string lastname { get; set; }
 
-        [JsonPropertyName("email")]
+   
         public string email { get; set; }
 
-        [JsonPropertyName("bio")]
+       
         public string bio { get; set; }
-
-        [JsonPropertyName("imagePath")]
-        public string imagePath { get; set; }
 
     }
 }

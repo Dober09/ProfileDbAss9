@@ -1,9 +1,9 @@
 ﻿
 
+using Microsoft.EntityFrameworkCore;
+using ProfileAss.Data;
 using ProfileAss.Model;
-
 using System.Text.Json;
-
 
 namespace ProfileAss.Service
 {
@@ -11,68 +11,72 @@ namespace ProfileAss.Service
     {
         
         private readonly string filePath;
-       
+        private readonly DatabaseContext _context;
 
 
-        public DataService()
+
+
+        public DataService(DatabaseContext context)
         {
             filePath = Path.Combine(FileSystem.AppDataDirectory,"ProfileData.txt");
+            _context = context;
         }
-        public  async Task<Profile> ReadTextFile()
 
-
+        public async Task<List<Profile>> GetAllAsync()
         {
-
-            try
-            {
-
-                //check if file exist
-                if (!File.Exists(filePath)) { 
-                    return new Profile();
-                }
-                System.Diagnostics.Debug.WriteLine($"filePath ----> ${filePath}");
-
-                var content = await File.ReadAllTextAsync(filePath);
-
-                return JsonSerializer.Deserialize<Profile>(content);
-              
-               
-
-             
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine($"Error reading profiles : {ex.Message}");
-                return new Profile();
-
-            }
-           
-            
+            //return await _context.Profile.ToListAsync();
+            return await _context.person.ToListAsync();
         }
 
-        public async Task<string> UploadLocalAsync(string filename, Stream stream)
+        public async Task<Profile> GetByIdAsync(int id)
         {
-            var localPath =  Path.Combine(FileSystem.AppDataDirectory, filename);
-            using var fs =  File.Create(localPath);
-            stream.Position = 0;
-            await fs.CopyToAsync(stream);
-
-            return localPath;
+            //return await _context.Profile.FindAsync(id);
+            return await _context.person.FindAsync(id);
         }
 
-
-        public async Task WriteToFile(Profile p)
+        public async Task<bool> AddAsync(Profile entity)
         {
             try
             {
-            
-                string json = JsonSerializer.Serialize(p);
-                await File.WriteAllTextAsync(filePath,json);
-            
-                System.Diagnostics.Debug.WriteLine($"Succefully wrote the info");
+                //await _context.People.AddAsync(entity);
+                await _context.person.AddAsync(entity);
+                await _context.SaveChangesAsync();
+                return true;
             }
-            catch (Exception ex) {
-                System.Diagnostics.Debug.WriteLine($"error failed to save profile {ex.Message}");
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateAsync(Profile entity)
+        {
+            try
+            {
+                _context.person.Update(entity);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var person = await GetByIdAsync(id);
+            if (person == null) return false;
+
+            try
+            {
+                _context.person.Remove(person);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
     }

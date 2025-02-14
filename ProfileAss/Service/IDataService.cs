@@ -6,10 +6,10 @@ namespace ProfileAss.Service
 {
     public interface IDataService
     {
-        Task<Profile> ReadTextFile();
-
-        Task WriteToFile(Profile profile);
-
-        Task<string> UploadLocalAsync(string filename, Stream stream);
+        Task<List<Profile>> GetAllAsync();
+        Task<Profile> GetByIdAsync(int id);
+        Task<bool> AddAsync(Profile entity);
+        Task<bool> UpdateAsync(Profile entity);
+        Task<bool> DeleteAsync(int id);
     }
 }

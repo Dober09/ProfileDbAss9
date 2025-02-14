@@ -2,6 +2,8 @@
 using ProfileAss.Service;
 using ProfileAss.ViewModel;
 using ProfileAss.Views;
+using ProfileAss.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ProfileAss
 {
@@ -18,12 +20,33 @@ namespace ProfileAss
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-            builder.Services.AddSingleton<DataService>();
-            builder.Services.AddSingleton<ProfileViewModel>();
-            builder.Services.AddSingleton<ProfilePage>();
+            var dbPath = Path.Combine(FileSystem.AppDataDirectory, "profile.db");
+            builder.Services.AddDbContext<DatabaseContext>( options =>
+            {
+                options.UseSqlite($"Data Source={dbPath}");
+            });
 
+            // Force database creation on startup
+            var serviceProvider = builder.Services.BuildServiceProvider();
+            using (var scope = serviceProvider.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+                dbContext.Database.EnsureCreated();
+            }
+
+            // Register database context
+            builder.Services.AddDbContext<DatabaseContext>();
+
+            // Register services
+            builder.Services.AddScoped<IDataService, DataService>();
+
+            // Register ViewModels
+            builder.Services.AddTransient<ProfileViewModel>();
+
+            // Register Pages
+            builder.Services.AddTransient<ProfilePage>();
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();

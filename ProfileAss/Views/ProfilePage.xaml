@@ -13,7 +13,8 @@
                Margin="10"
                RowSpacing="10">
             
-            <!--Add Image-->
+            <!--Add Image
+            
             <VerticalStackLayout Grid.Row="0">
                 
                 <Label Text="Add Image"
@@ -40,10 +41,11 @@
                              Command="{Binding UploadImageCommand}"/>
            
         </VerticalStackLayout>
+            -->
             
             <!--Firstname container-->
             
-            <VerticalStackLayout  Grid.Row="1">
+            <VerticalStackLayout  Grid.Row="0">
                 <Label Text="Firstname"
                        FontAttributes="Bold"
                        Margin="70,0,0,0"
@@ -62,10 +64,10 @@
             </VerticalStackLayout>
             
             <!--Lastname container-->
-            
-            <VerticalStackLayout Grid.Row="2">
-                
-                <Label Text="Lastname"
+
+        <VerticalStackLayout Grid.Row="1" >
+
+            <Label Text="Lastname"
                        FontAttributes="Bold"
                        Margin="70,0,0,0" 
                        />
