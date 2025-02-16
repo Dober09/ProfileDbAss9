@@ -29,7 +29,22 @@ namespace ProfileAss.Data
             modelBuilder.Entity<ProductItem>().ToTable("product");
             //map the basket tables
             modelBuilder.Entity<Basket>().ToTable("basket");
-            modelBuilder.Entity<Basket>().ToTable("basket_item");
+            modelBuilder.Entity<BasketItem>().ToTable("basket_item");
+
+                 modelBuilder.Entity<Basket>()
+                .HasMany(b => b.BasketItems)
+                .WithOne(bi => bi.Basket)
+                .HasForeignKey(bi => bi.BasketId);
+
+            modelBuilder.Entity<BasketItem>()
+                .HasOne(bi => bi.ProductItem)
+                .WithMany()
+                .HasForeignKey(bi => bi.ProductItemId);
+
+            modelBuilder.Entity<Basket>()
+                .HasOne(b => b.Profile)
+                .WithMany()
+                .HasForeignKey(b => b.ProfileId);
 
         }
     }

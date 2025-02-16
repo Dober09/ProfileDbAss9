@@ -2,13 +2,16 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ProfileAss.Views.BasketPage"
+             xmlns:vm="clr-namespace:ProfileAss.ViewModel"
+              x:DataType="vm:BasketViewModel"
+             xmlns:model="clr-namespace:ProfileAss.Model"
              Title="Cart">
     <Grid>
         <CollectionView Grid.Row="1" 
-                ItemsSource="{Binding WishList}"
-                SelectionMode="None">
+                        ItemsSource="{Binding BasketItems}"
+                        SelectionMode="None">
             <CollectionView.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate x:DataType="model:BasketItem">
                     <Frame Margin="0,0,0,15" 
                     Padding="15"
                     BorderColor="Transparent"
@@ -16,14 +19,14 @@
                     CornerRadius="10">
                         <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto,Auto">
                             <!-- Item Description -->
-                            <Label Text="{Binding item_description}"
+                            <Label Text="{Binding ProductItem.ProductDescription }"
                             FontSize="16"
                             LineBreakMode="TailTruncation"
                             TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}"
                             Grid.Column="0"/>
 
                             <!-- Price -->
-                            <Label Text="{Binding selling_price, StringFormat='R{0:N2}'}"
+                            <Label Text="{Binding  ProductItem.ProductPrice, StringFormat='R{0:N2}'}"
                             FontSize="16"
                             FontAttributes="Bold"
                             TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Primary}}"
@@ -33,12 +36,12 @@
 
                             <!-- Remove Button -->
                             <Button Grid.Column="1" 
-                             Grid.RowSpan="2"
-                             Text="Remove"
-                             FontSize="14"
-                             Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveCommand}"
-                             CommandParameter="{Binding .}"
-                             BackgroundColor="{StaticResource Danger}"
+                                    Grid.RowSpan="2"
+                                    Text="Remove"
+                                    FontSize="14"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveItemCommand}"
+                                    CommandParameter="{Binding .}"
+                                    BackgroundColor="{StaticResource Danger}"
                              TextColor="White"
                              CornerRadius="8"
                              HeightRequest="40"
@@ -51,7 +54,7 @@
             <!-- Empty State -->
             <CollectionView.EmptyView>
                 <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
-                    <Label Text="Your wishlist is empty"
+                    <Label Text="Your cart is empty"
                     FontSize="20"
                     TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"
                     HorizontalTextAlignment="Center"/>

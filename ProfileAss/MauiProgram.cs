@@ -41,12 +41,15 @@ namespace ProfileAss
             builder.Services.AddScoped<IDataService, DataService>();
 
             // Register ViewModels
-            builder.Services.AddTransient<ProfileViewModel>();
+            builder.Services.AddSingleton<ProfileViewModel>();
+            
+            builder.Services.AddSingleton<BasketViewModel>();
             builder.Services.AddTransient<ProductViewModel>();
 
             // Register Pages
             builder.Services.AddTransient<ProfilePage>();
             builder.Services.AddTransient<ProductPage>();
+            builder.Services.AddTransient<BasketPage>();
 #if DEBUG
             builder.Logging.AddDebug();
 #endif

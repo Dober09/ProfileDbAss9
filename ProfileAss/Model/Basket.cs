@@ -9,12 +9,12 @@ namespace ProfileAss.Model
     {
         public int Id { get; set; }
 
-        // Link to Profile (1:1 relationship)
-        public int ProfileId { get; set; }
+        // Link to Profile 
         [ForeignKey("ProfileId")]
+        public int ProfileId { get; set; }
         public Profile Profile { get; set; }
 
-        // Products in the basket (Many:Many via BasketItem)
+        // Products in the basket 
         public List<BasketItem> BasketItems { get; set; } = new();
     }
 }

@@ -18,10 +18,12 @@ namespace ProfileAss.Service
 
         public async Task<List<BasketItem>> GetBasketItemsByProfileIdAsync(int profileId)
         {
-            return await _context.basketItems
-                .Include(bi => bi.ProductItem)
-                .Where(bi => bi.Basket.ProfileId == profileId)
-                .ToListAsync();
+            var basket = await _context.baskets
+          .Include(b => b.BasketItems)
+          .ThenInclude(bi => bi.ProductItem)
+          .FirstOrDefaultAsync(b => b.ProfileId == profileId);
+
+            return basket?.BasketItems.ToList() ?? new List<BasketItem>();
         }
 
         public async Task<List<ProductItem>> GetAllProductAsync()

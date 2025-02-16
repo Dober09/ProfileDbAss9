@@ -21,6 +21,6 @@ namespace ProfileAss.Model
 
         // Additional fields
         public int Quantity { get; set; } = 1;
-        public DateTime AddedDate { get; set; } = DateTime.UtcNow;
+  
     }
 }

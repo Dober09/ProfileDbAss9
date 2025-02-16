@@ -33,6 +33,7 @@ namespace ProfileAss.ViewModel
                 {
                     BasketItems.Add(item);
                 }
+                System.Diagnostics.Debug.WriteLine($"Loaded {BasketItems.Count} items into basket");
             }
             catch (Exception ex)
             {
@@ -54,14 +55,21 @@ namespace ProfileAss.ViewModel
                     BasketId = basket.Id,
                     ProductItemId = product.Id,
                     Quantity = 1,
-                    AddedDate = DateTime.UtcNow
+                    ProductItem = product,
+                    Basket = basket
+                
+                   
                 };
 
                 if (await _dataService.AddBasketItemAsync(basketItem))
                 {
-                    // Refresh basket items
-                    LoadBasketItems();
+                    // Add item to the observable collection immediately
+                    BasketItems.Add(basketItem);
+                    System.Diagnostics.Debug.WriteLine("Item added successfully");
                 }
+
+                System.Diagnostics.Debug.WriteLine("Item added unsuccessfully");
+            
             }
             catch (Exception ex)
             {
