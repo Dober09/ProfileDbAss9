@@ -20,7 +20,7 @@ namespace ProfileAss
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-            var dbPath = Path.Combine(FileSystem.AppDataDirectory, "profile.db");
+            var dbPath = Path.Combine(FileSystem.AppDataDirectory, "shoesstore.db");
             builder.Services.AddDbContext<DatabaseContext>( options =>
             {
                 options.UseSqlite($"Data Source={dbPath}");
@@ -42,9 +42,11 @@ namespace ProfileAss
 
             // Register ViewModels
             builder.Services.AddTransient<ProfileViewModel>();
+            builder.Services.AddTransient<ProductViewModel>();
 
             // Register Pages
             builder.Services.AddTransient<ProfilePage>();
+            builder.Services.AddTransient<ProductPage>();
 #if DEBUG
             builder.Logging.AddDebug();
 #endif

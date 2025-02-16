@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ProfileAss.Views.ProductPage"
+             xmlns:vm="clr-namespace:ProfileAss.ViewModel"
+             xmlns:model="clr-namespace:ProfileAss.Model"
+             Shell.NavBarIsVisible="False"
+  
+           >
+    <Grid RowDefinitions="auto,*" RowSpacing="20">
+        <VerticalStackLayout Grid.Row="0" Margin="0">
+            <Image Source="banner.jpg"
+                   HeightRequest="200"
+                   Aspect="AspectFit"
+            />
+        </VerticalStackLayout>
+        <Grid Grid.Row="1">
+            <CollectionView x:DataType="vm:ProductViewModel"
+                            ItemsSource="{Binding ProductItems}">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical"
+                                     Span="2"/>
+                </CollectionView.ItemsLayout>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="model:ProductItem">
+                        <Frame BorderColor="Gray" CornerRadius="15" Margin="5,10,0,0" Padding="10" HeightRequest="230" WidthRequest="180">
+                            <StackLayout>
+                                <Image Source="{Binding ImageName}" HeightRequest="70" WidthRequest="70" Aspect="AspectFill" />
+
+
+                                <HorizontalStackLayout Margin="0,12,0,0">
+                                    <StackLayout>
+                                        <Label Text="{Binding ProductName}" FontSize="14" FontAttributes="Bold"/>
+                                        <Label Text="{Binding ProductName, StringFormat='Quantity: {0}'}" FontSize="14" TextColor="Gray"/>
+                                    </StackLayout>
+                                </HorizontalStackLayout>
+                                <Grid HorizontalOptions="FillAndExpand"
+                                      RowSpacing="20"
+                                      RowDefinitions="*,*">
+                                   
+                                    <Label Grid.Row="0"
+                                           Text="{Binding ProductPrice, StringFormat='R {0}'}"
+                                           FontSize="16"
+                                           TextColor="Green"
+                                           FontAttributes="Bold"
+                                           VerticalOptions="Center"/>
+                                    <Button Grid.Row="1"
+                                            Text="Add To Cart"
+                                            
+                                            BackgroundColor="Green"
+                                            VerticalOptions="Center"/>
+                                </Grid>
+                            </StackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+        
+        
+    </Grid>
+</ContentPage>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="ProfileAss.Views.BasketPage"
+             Title="Cart">
+    <Grid>
+        <CollectionView Grid.Row="1" 
+                ItemsSource="{Binding WishList}"
+                SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Margin="0,0,0,15" 
+                    Padding="15"
+                    BorderColor="Transparent"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray800}}"
+                    CornerRadius="10">
+                        <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto,Auto">
+                            <!-- Item Description -->
+                            <Label Text="{Binding item_description}"
+                            FontSize="16"
+                            LineBreakMode="TailTruncation"
+                            TextColor="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource White}}"
+                            Grid.Column="0"/>
+
+                            <!-- Price -->
+                            <Label Text="{Binding selling_price, StringFormat='R{0:N2}'}"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource Primary}}"
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Margin="0,5,0,0"/>
+
+                            <!-- Remove Button -->
+                            <Button Grid.Column="1" 
+                             Grid.RowSpan="2"
+                             Text="Remove"
+                             FontSize="14"
+                             Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveCommand}"
+                             CommandParameter="{Binding .}"
+                             BackgroundColor="{StaticResource Danger}"
+                             TextColor="White"
+                             CornerRadius="8"
+                             HeightRequest="40"
+                             Margin="10,0,0,0"/>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+            <!-- Empty State -->
+            <CollectionView.EmptyView>
+                <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
+                    <Label Text="Your wishlist is empty"
+                    FontSize="20"
+                    TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"
+                    HorizontalTextAlignment="Center"/>
+                    <Label Text="Items you save will appear here"
+                    FontSize="16"
+                    TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}"
+                    HorizontalTextAlignment="Center"
+                    Margin="0,10,0,0"/>
+                </StackLayout>
+            </CollectionView.EmptyView>
+        </CollectionView>
+    </Grid>
+</ContentPage>

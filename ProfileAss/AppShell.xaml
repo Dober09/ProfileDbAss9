@@ -7,9 +7,16 @@
     Shell.FlyoutBehavior="Disabled"
     Title="ProfileAss">
 
-    <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate view:ProfilePage}"
-        Route="MainPage" />
+    <TabBar>
+        <Tab Title="home" Icon="homa.png">
+            <ShellContent ContentTemplate="{DataTemplate view:ProductPage}" />
+        </Tab>  
+        <Tab Title="cart" Icon="basket.png">
+            <ShellContent ContentTemplate="{DataTemplate view:BasketPage}" />
+        </Tab>     
+        <Tab Title="profile" Icon="user.png">
+            <ShellContent ContentTemplate="{DataTemplate view:ProfilePage}" />
+        </Tab>
+    </TabBar>
 
 </Shell>
