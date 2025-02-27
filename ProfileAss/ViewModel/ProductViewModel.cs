@@ -31,12 +31,24 @@ namespace ProfileAss.ViewModel
         }
 
         [RelayCommand]
-        private async void AddToBasketAsync(ProductItem product)
+        private async void AddToBasket(ProductItem product)
         {
             if (product != null)
             {
                 System.Diagnostics.Debug.WriteLine($"Adding product to basket: {product.ProductName}");
-                await _basketViewModel.AddToBasket(product);
+                try
+                {
+                    await _basketViewModel.AddToBasket(product);
+                    System.Diagnostics.Debug.WriteLine($"Successfully added to basket");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Error adding to basket: {ex.Message}");
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("Product is null");
             }
 
         }
@@ -73,7 +85,7 @@ namespace ProfileAss.ViewModel
                     },
                     new ProductItem
                     {
-                        ImageName = "https://thefoschini.vtexassets.com/arquivos/ids/178020178-300-400/57ac1e01-8c6f-4b20-aafe-fff013ffc719.png?v=638750295888100000",
+                        ImageName = "https://images.puma.com/image/upload/f_auto,q_auto,w_600,b_rgb:FAFAFA/global/images/399853/01/sv01/fnd/ZAF/fmt/png",
                         ProductName = "Puma",
                         ProductDescription="Club Grey/White Sneaker",
                         ProductPrice = 45.99m
@@ -87,7 +99,7 @@ namespace ProfileAss.ViewModel
                     },
                     new ProductItem
                     {
-                        ImageName = "https://thefoschini.vtexassets.com/arquivos/ids/178020178-300-400/57ac1e01-8c6f-4b20-aafe-fff013ffc719.png?v=638750295888100000",
+                        ImageName = "https://images.puma.com/image/upload/f_auto,q_auto,w_600,b_rgb:FAFAFA/global/images/399853/01/sv01/fnd/ZAF/fmt/png",
                         ProductName = "Puma",
                         ProductDescription="Club Grey/White Sneaker",
                         ProductPrice = 45.99m

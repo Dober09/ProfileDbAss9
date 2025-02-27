@@ -20,5 +20,10 @@ namespace ProfileAss.Model
        
         public string bio { get; set; }
 
+
+
+        // Change this to specify the inverse property
+        public virtual ICollection<Basket> Baskets { get; set; } = new List<Basket>();
+
     }
 }

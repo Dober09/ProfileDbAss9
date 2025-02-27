@@ -10,8 +10,8 @@ namespace ProfileAss.Model
         public int Id { get; set; }
 
         // Link to Profile 
-        [ForeignKey("ProfileId")]
         public int ProfileId { get; set; }
+        [ForeignKey("ProfileId")]
         public Profile Profile { get; set; }
 
         // Products in the basket 

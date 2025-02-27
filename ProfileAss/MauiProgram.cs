@@ -4,6 +4,9 @@ using ProfileAss.ViewModel;
 using ProfileAss.Views;
 using ProfileAss.Data;
 using Microsoft.EntityFrameworkCore;
+using CommunityToolkit.Maui;
+//using .Services;
+using ProfileAss.Service;
 
 namespace ProfileAss
 {
@@ -14,13 +17,14 @@ namespace ProfileAss
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .UseMauiCommunityToolkit()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-            var dbPath = Path.Combine(FileSystem.AppDataDirectory, "shoesstore.db");
+            var dbPath = Path.Combine(FileSystem.AppDataDirectory, "shoesstores.db");
             builder.Services.AddDbContext<DatabaseContext>( options =>
             {
                 options.UseSqlite($"Data Source={dbPath}");
@@ -39,17 +43,17 @@ namespace ProfileAss
 
             // Register services
             builder.Services.AddScoped<IDataService, DataService>();
-
+            builder.Services.AddSingleton<BadgeCounterService>();
             // Register ViewModels
             builder.Services.AddSingleton<ProfileViewModel>();
             
-            builder.Services.AddSingleton<BasketViewModel>();
+            builder.Services.AddTransient<BasketViewModel>();
             builder.Services.AddTransient<ProductViewModel>();
 
             // Register Pages
             builder.Services.AddTransient<ProfilePage>();
             builder.Services.AddTransient<ProductPage>();
-            builder.Services.AddTransient<BasketPage>();
+            builder.Services.AddSingleton<BasketPage>();
 #if DEBUG
             builder.Logging.AddDebug();
 #endif

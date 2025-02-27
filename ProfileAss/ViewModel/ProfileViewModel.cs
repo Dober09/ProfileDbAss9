@@ -43,10 +43,10 @@ namespace ProfileAss.ViewModel
                     Profile = new Profile
                     {
                         Id = 1, // Explicit ID for singleton pattern
-                        firstname = "New",
-                        lastname = "User",
-                        email = "user@example.com",
-                        bio = "Describe yourself"
+                        firstname = "",
+                        lastname = "",
+                        email = "",
+                        bio = ""
                     };
 
                     // Persist to database

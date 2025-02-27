@@ -126,6 +126,14 @@ namespace ProfileAss.Service
             }
         }
 
+        public async Task<BasketItem> GetBasketItemAsync(int id)
+        {
+            return await _context.basketItems
+                .Include(bi => bi.ProductItem)
+                .Include(bi => bi.Basket)
+                .FirstOrDefaultAsync(bi => bi.Id == id);
+        }
+
         public async Task<bool> DeleteAsync(int id)
         {
             var person = await GetByIdAsync(id);
@@ -139,6 +147,22 @@ namespace ProfileAss.Service
             }
             catch
             {
+                return false;
+            }
+        }
+
+
+        public async Task<bool> UpdateBasketItemAsync(BasketItem item)
+        {
+            try
+            {
+                _context.basketItems.Update(item);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex);
                 return false;
             }
         }

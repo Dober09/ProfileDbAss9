@@ -31,7 +31,14 @@ namespace ProfileAss.Data
             modelBuilder.Entity<Basket>().ToTable("basket");
             modelBuilder.Entity<BasketItem>().ToTable("basket_item");
 
-                 modelBuilder.Entity<Basket>()
+            // Update the Basket-Profile relationship configuration
+            modelBuilder.Entity<Basket>()
+                .HasOne(b => b.Profile)
+                .WithMany(p => p.Baskets)  // Specify the navigation property
+                .HasForeignKey(b => b.ProfileId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Basket>()
                 .HasMany(b => b.BasketItems)
                 .WithOne(bi => bi.Basket)
                 .HasForeignKey(bi => bi.BasketId);
@@ -40,12 +47,6 @@ namespace ProfileAss.Data
                 .HasOne(bi => bi.ProductItem)
                 .WithMany()
                 .HasForeignKey(bi => bi.ProductItemId);
-
-            modelBuilder.Entity<Basket>()
-                .HasOne(b => b.Profile)
-                .WithMany()
-                .HasForeignKey(b => b.ProfileId);
-
         }
     }
 }
