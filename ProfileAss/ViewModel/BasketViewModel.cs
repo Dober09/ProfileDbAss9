@@ -58,6 +58,7 @@ namespace ProfileAss.ViewModel
                         BasketItems.Add(item);
                     }
 
+                    // Update badge counter
                     BadgeCounterService.SetCount(BasketItems.Count);
                     CalculateTotalPrice();
                 });
@@ -105,60 +106,46 @@ namespace ProfileAss.ViewModel
                 // Get/create the basket first (this needs to be done before adding to UI)
                 var basket = await _dataService.GetOrCreateBasketAsync(_currentProfileId);
 
-                // Create a temporary basket item for immediate display
-                var tempBasketItem = new BasketItem
-                {
-                    BasketId = basket.Id,
-                    ProductItemId = product.Id,
-                    ProductItem = product, // Set the product directly for UI display
-                    Quantity = 1
-                };
-
-                // Add to UI immediately
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    BasketItems.Add(tempBasketItem);
-                    BadgeCounterService.SetCount(BadgeCounterService.Count + 1);
-
-                    string message = "Added item to cart";
-                    var toast = Toast.Make(message, CommunityToolkit.Maui.Core.ToastDuration.Short, 10);
-                    toast.Show();
-                });
-
-                // Save to database in the background
+                // Create a new basket item
                 var basketItem = new BasketItem
                 {
                     BasketId = basket.Id,
                     ProductItemId = product.Id,
-                    Quantity = 1
+                    Quantity = 1,
+                    ProductItem = product // Set the product directly for UI display
                 };
 
+                // Add to database first to get a valid ID
                 bool success = await _dataService.AddBasketItemAsync(basketItem);
+
                 if (success)
                 {
-                    // Get the saved item with proper ID
+                    // Get the saved item with proper ID to ensure we have the complete item
                     var savedItem = await _dataService.GetBasketItemAsync(basketItem.Id);
 
-                    // Replace the temporary item with the saved one
+                    if (savedItem == null)
+                    {
+                        // If for some reason we couldn't get the saved item, use our original
+                        savedItem = basketItem;
+                    }
+
+                    // Add to UI
                     MainThread.BeginInvokeOnMainThread(() =>
                     {
-                        int index = BasketItems.IndexOf(tempBasketItem);
-                        if (index >= 0)
-                        {
-                            BasketItems[index] = savedItem;
-                        }
+                        BasketItems.Add(savedItem);
+                        BadgeCounterService.SetCount(BasketItems.Count);
+
+                        string message = "Added item to cart";
+                        var toast = Toast.Make(message, CommunityToolkit.Maui.Core.ToastDuration.Short, 10);
+                        toast.Show();
                     });
 
                     System.Diagnostics.Debug.WriteLine($"Successfully added {product.ProductName} to basket");
                 }
                 else
                 {
-                    // If save failed, remove the temporary item
                     MainThread.BeginInvokeOnMainThread(() =>
                     {
-                        BasketItems.Remove(tempBasketItem);
-                        BadgeCounterService.SetCount(BadgeCounterService.Count - 1);
-
                         string message = "Failed to add item to cart";
                         var toast = Toast.Make(message, CommunityToolkit.Maui.Core.ToastDuration.Short, 10);
                         toast.Show();
@@ -176,54 +163,103 @@ namespace ProfileAss.ViewModel
         [RelayCommand]
         public async Task RemoveItem(BasketItem item)
         {
-            // Remove from UI immediately
-            MainThread.BeginInvokeOnMainThread(() =>
+            if (item == null)
             {
-                BasketItems.Remove(item);
-                BadgeCounterService.SetCount(BadgeCounterService.Count - 1);
-            });
+                System.Diagnostics.Debug.WriteLine("Cannot remove null item from basket");
+                return;
+            }
 
-            // Remove from database in the background
-            await _dataService.RemoveBasketItemAsync(item);
+            try
+            {
+                // Remove from UI immediately
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    BasketItems.Remove(item);
+                    BadgeCounterService.SetCount(BasketItems.Count);
+
+                    string message = "Removed from cart";
+                    var toast = Toast.Make(message, CommunityToolkit.Maui.Core.ToastDuration.Short, 10);
+                    toast.Show();
+                });
+
+                // Remove from database in the background
+                bool success = await _dataService.RemoveBasketItemAsync(item);
+
+                if (!success)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Failed to remove item from database: {item.Id}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error removing from basket: {ex.Message}");
+            }
         }
 
         [RelayCommand]
         public async Task IncreaseQuantity(BasketItem item)
         {
-            // Update UI immediately
-            MainThread.BeginInvokeOnMainThread(() =>
-            {
-                item.Quantity++;
-                CalculateTotalPrice();
-            });
+            if (item == null) return;
 
-            // Update database in background
-            await _dataService.UpdateBasketItemAsync(item);
-        }
-
-        [RelayCommand]
-        public async Task DecreaseQuantity(BasketItem item)
-        {
-            if (item.Quantity > 1)
+            try
             {
                 // Update UI immediately
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    item.Quantity--;
+                    item.Quantity++;
                     CalculateTotalPrice();
                 });
 
                 // Update database in background
                 await _dataService.UpdateBasketItemAsync(item);
             }
-            else
+            catch (Exception ex)
             {
-                // If quantity would become 0, remove the item
-                await RemoveItem(item);
+                System.Diagnostics.Debug.WriteLine($"Error increasing quantity: {ex.Message}");
             }
+        }
+
+        [RelayCommand]
+        public async Task DecreaseQuantity(BasketItem item)
+        {
+            if (item == null) return;
+
+            try
+            {
+                if (item.Quantity > 1)
+                {
+                    // Update UI immediately
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        item.Quantity--;
+                        CalculateTotalPrice();
+                    });
+
+                    // Update database in background
+                    await _dataService.UpdateBasketItemAsync(item);
+                }
+                else
+                {
+                    // If quantity would become 0, remove the item
+                    await RemoveItem(item);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error decreasing quantity: {ex.Message}");
+            }
+        }
+
+        // Add method to refresh the basket items from database
+        [RelayCommand]
+        public async Task RefreshBasket()
+        {
+            LoadBasketItems();
         }
     }
 }
+
+
 
 //using CommunityToolkit.Mvvm.ComponentModel;
 //using System.Collections.ObjectModel;
@@ -231,22 +267,20 @@ namespace ProfileAss.ViewModel
 //using ProfileAss.Service;
 //using CommunityToolkit.Mvvm.Input;
 //using CommunityToolkit.Maui.Alerts;
-//using ProfileAss.Service;
 //using System.Collections.Specialized;
 
 //namespace ProfileAss.ViewModel
 //{
-//    public partial class BasketViewModel: ObservableObject
+//    public partial class BasketViewModel : ObservableObject
 //    {
-
 //        private readonly IDataService _dataService;
 //        private int _currentProfileId = 1;
 
 //        [ObservableProperty]
-//        public ObservableCollection<BasketItem> _basketItems = new ObservableCollection<BasketItem>();
+//        private ObservableCollection<BasketItem> _basketItems;
 
 //        [ObservableProperty]
-//        private  BadgeCounterService _badgeCounterService;
+//        private BadgeCounterService _badgeCounterService;
 
 //        [ObservableProperty]
 //        private decimal _totalPrice;
@@ -254,13 +288,12 @@ namespace ProfileAss.ViewModel
 //        public BasketViewModel(IDataService dataService, BadgeCounterService badgeCounterService)
 //        {
 //            _badgeCounterService = badgeCounterService;
-
+//            _dataService = dataService;
 //            _basketItems = new ObservableCollection<BasketItem>();
+
 //            // Subscribe to collection changes to update total price
 //            _basketItems.CollectionChanged += BasketItems_CollectionChanged;
 
-
-//            _dataService = dataService;
 //            LoadBasketItems();
 //        }
 
@@ -271,7 +304,7 @@ namespace ProfileAss.ViewModel
 
 //        private void CalculateTotalPrice()
 //        {
-//            TotalPrice = BasketItems.Sum(item => item.ProductItem.ProductPrice * item.Quantity);
+//            TotalPrice = BasketItems.Sum(item => item.ProductItem != null ? item.ProductItem.ProductPrice * item.Quantity : 0);
 //        }
 
 //        private async void LoadBasketItems()
@@ -287,41 +320,75 @@ namespace ProfileAss.ViewModel
 //                    {
 //                        BasketItems.Add(item);
 //                    }
-//                    System.Diagnostics.Debug.WriteLine($"Loaded {BasketItems.Count} items into basket");
+
 //                    BadgeCounterService.SetCount(BasketItems.Count);
-
 //                    CalculateTotalPrice();
-
 //                });
 
-//                }
+//                System.Diagnostics.Debug.WriteLine($"Loaded {BasketItems.Count} items into basket");
+//            }
 //            catch (Exception ex)
 //            {
 //                System.Diagnostics.Debug.WriteLine($"Error loading basket: {ex.Message}");
 //            }
 //        }
 
-
 //        [RelayCommand]
 //        public async Task AddToBasket(ProductItem product)
 //        {
+//            if (product == null)
+//            {
+//                System.Diagnostics.Debug.WriteLine("Cannot add null product to basket");
+//                return;
+//            }
+
 //            try
 //            {
-//                // First get/create the basket
-//                var basket = await _dataService.GetOrCreateBasketAsync(_currentProfileId);
-
 //                // Check if item already exists
 //                var existingItem = BasketItems.FirstOrDefault(i => i.ProductItemId == product.Id);
 //                if (existingItem != null)
 //                {
-//                    // Optionally increment quantity instead of adding new item
-//                    existingItem.Quantity++;
-//                    // Update in price
-//                    CalculateTotalPrice();
+//                    // Increment quantity immediately in the UI
+//                    MainThread.BeginInvokeOnMainThread(() =>
+//                    {
+//                        existingItem.Quantity++;
+//                        CalculateTotalPrice();
+
+//                        string message = "Increased quantity in cart";
+//                        var toast = Toast.Make(message, CommunityToolkit.Maui.Core.ToastDuration.Short, 10);
+//                        toast.Show();
+//                    });
+
+//                    // Update in database in the background
+//                    await _dataService.UpdateBasketItemAsync(existingItem);
 //                    return;
 //                }
 
-//                // Create new basket item with only the necessary references
+//                // For new items, we need to handle differently
+//                // Get/create the basket first (this needs to be done before adding to UI)
+//                var basket = await _dataService.GetOrCreateBasketAsync(_currentProfileId);
+
+//                // Create a temporary basket item for immediate display
+//                var tempBasketItem = new BasketItem
+//                {
+//                    BasketId = basket.Id,
+//                    ProductItemId = product.Id,
+//                    ProductItem = product, // Set the product directly for UI display
+//                    Quantity = 1
+//                };
+
+//                // Add to UI immediately
+//                MainThread.BeginInvokeOnMainThread(() =>
+//                {
+//                    BasketItems.Add(tempBasketItem);
+//                    BadgeCounterService.SetCount(BadgeCounterService.Count + 1);
+
+//                    string message = "Added item to cart";
+//                    var toast = Toast.Make(message, CommunityToolkit.Maui.Core.ToastDuration.Short, 10);
+//                    toast.Show();
+//                });
+
+//                // Save to database in the background
 //                var basketItem = new BasketItem
 //                {
 //                    BasketId = basket.Id,
@@ -329,55 +396,72 @@ namespace ProfileAss.ViewModel
 //                    Quantity = 1
 //                };
 
-//                if (await _dataService.AddBasketItemAsync(basketItem))
+//                bool success = await _dataService.AddBasketItemAsync(basketItem);
+//                if (success)
 //                {
+//                    // Get the saved item with proper ID
+//                    var savedItem = await _dataService.GetBasketItemAsync(basketItem.Id);
 
-//                    string message = "added item to cart";
-//                    var toast = Toast.Make(message, CommunityToolkit.Maui.Core.ToastDuration.Short, 10);
-//                    toast.Show();
-//                    // Reload the complete item with its navigation properties
-//                    basketItem = await _dataService.GetBasketItemAsync(basketItem.Id);
-
-
-//                    MainThread.BeginInvokeOnMainThread(() => {
-//                        BasketItems.Add(basketItem);
-//                        BadgeCounterService.SetCount(BadgeCounterService.Count + 1);
+//                    // Replace the temporary item with the saved one
+//                    MainThread.BeginInvokeOnMainThread(() =>
+//                    {
+//                        int index = BasketItems.IndexOf(tempBasketItem);
+//                        if (index >= 0)
+//                        {
+//                            BasketItems[index] = savedItem;
+//                        }
 //                    });
 
 //                    System.Diagnostics.Debug.WriteLine($"Successfully added {product.ProductName} to basket");
 //                }
 //                else
 //                {
+//                    // If save failed, remove the temporary item
+//                    MainThread.BeginInvokeOnMainThread(() =>
+//                    {
+//                        BasketItems.Remove(tempBasketItem);
+//                        BadgeCounterService.SetCount(BadgeCounterService.Count - 1);
+
+//                        string message = "Failed to add item to cart";
+//                        var toast = Toast.Make(message, CommunityToolkit.Maui.Core.ToastDuration.Short, 10);
+//                        toast.Show();
+//                    });
+
 //                    System.Diagnostics.Debug.WriteLine($"Failed to add {product.ProductName} to basket");
 //                }
 //            }
 //            catch (Exception ex)
 //            {
 //                System.Diagnostics.Debug.WriteLine($"Error adding to basket: {ex.Message}");
-//                throw;
 //            }
 //        }
 
 //        [RelayCommand]
 //        public async Task RemoveItem(BasketItem item)
 //        {
-//            if (await _dataService.RemoveBasketItemAsync(item))
+//            // Remove from UI immediately
+//            MainThread.BeginInvokeOnMainThread(() =>
 //            {
-//                MainThread.BeginInvokeOnMainThread(() => {
-//                    BasketItems.Remove(item);
-//                    BadgeCounterService.SetCount(BadgeCounterService.Count - 1);
-//                });
-//            }
-//        }
+//                BasketItems.Remove(item);
+//                BadgeCounterService.SetCount(BadgeCounterService.Count - 1);
+//            });
 
+//            // Remove from database in the background
+//            await _dataService.RemoveBasketItemAsync(item);
+//        }
 
 //        [RelayCommand]
 //        public async Task IncreaseQuantity(BasketItem item)
 //        {
-//            item.Quantity++;
-//            // You would need to add UpdateBasketItemAsync to your DataService
-//            // await _dataService.UpdateBasketItemAsync(item);
-//            CalculateTotalPrice();
+//            // Update UI immediately
+//            MainThread.BeginInvokeOnMainThread(() =>
+//            {
+//                item.Quantity++;
+//                CalculateTotalPrice();
+//            });
+
+//            // Update database in background
+//            await _dataService.UpdateBasketItemAsync(item);
 //        }
 
 //        [RelayCommand]
@@ -385,10 +469,15 @@ namespace ProfileAss.ViewModel
 //        {
 //            if (item.Quantity > 1)
 //            {
-//                item.Quantity--;
-//                // You would need to add UpdateBasketItemAsync to your DataService
-//                // await _dataService.UpdateBasketItemAsync(item);
-//                CalculateTotalPrice();
+//                // Update UI immediately
+//                MainThread.BeginInvokeOnMainThread(() =>
+//                {
+//                    item.Quantity--;
+//                    CalculateTotalPrice();
+//                });
+
+//                // Update database in background
+//                await _dataService.UpdateBasketItemAsync(item);
 //            }
 //            else
 //            {
@@ -396,7 +485,181 @@ namespace ProfileAss.ViewModel
 //                await RemoveItem(item);
 //            }
 //        }
-
-
 //    }
 //}
+
+////using CommunityToolkit.Mvvm.ComponentModel;
+////using System.Collections.ObjectModel;
+////using ProfileAss.Model;
+////using ProfileAss.Service;
+////using CommunityToolkit.Mvvm.Input;
+////using CommunityToolkit.Maui.Alerts;
+////using ProfileAss.Service;
+////using System.Collections.Specialized;
+
+////namespace ProfileAss.ViewModel
+////{
+////    public partial class BasketViewModel: ObservableObject
+////    {
+
+////        private readonly IDataService _dataService;
+////        private int _currentProfileId = 1;
+
+////        [ObservableProperty]
+////        public ObservableCollection<BasketItem> _basketItems = new ObservableCollection<BasketItem>();
+
+////        [ObservableProperty]
+////        private  BadgeCounterService _badgeCounterService;
+
+////        [ObservableProperty]
+////        private decimal _totalPrice;
+
+////        public BasketViewModel(IDataService dataService, BadgeCounterService badgeCounterService)
+////        {
+////            _badgeCounterService = badgeCounterService;
+
+////            _basketItems = new ObservableCollection<BasketItem>();
+////            // Subscribe to collection changes to update total price
+////            _basketItems.CollectionChanged += BasketItems_CollectionChanged;
+
+
+////            _dataService = dataService;
+////            LoadBasketItems();
+////        }
+
+////        private void BasketItems_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+////        {
+////            CalculateTotalPrice();
+////        }
+
+////        private void CalculateTotalPrice()
+////        {
+////            TotalPrice = BasketItems.Sum(item => item.ProductItem.ProductPrice * item.Quantity);
+////        }
+
+////        private async void LoadBasketItems()
+////        {
+////            try
+////            {
+////                var items = await _dataService.GetBasketItemsByProfileIdAsync(_currentProfileId);
+
+////                MainThread.BeginInvokeOnMainThread(() =>
+////                {
+////                    BasketItems.Clear();
+////                    foreach (var item in items)
+////                    {
+////                        BasketItems.Add(item);
+////                    }
+////                    System.Diagnostics.Debug.WriteLine($"Loaded {BasketItems.Count} items into basket");
+////                    BadgeCounterService.SetCount(BasketItems.Count);
+
+////                    CalculateTotalPrice();
+
+////                });
+
+////                }
+////            catch (Exception ex)
+////            {
+////                System.Diagnostics.Debug.WriteLine($"Error loading basket: {ex.Message}");
+////            }
+////        }
+
+
+////        [RelayCommand]
+////        public async Task AddToBasket(ProductItem product)
+////        {
+////            try
+////            {
+////                // First get/create the basket
+////                var basket = await _dataService.GetOrCreateBasketAsync(_currentProfileId);
+
+////                // Check if item already exists
+////                var existingItem = BasketItems.FirstOrDefault(i => i.ProductItemId == product.Id);
+////                if (existingItem != null)
+////                {
+////                    // Optionally increment quantity instead of adding new item
+////                    existingItem.Quantity++;
+////                    // Update in price
+////                    CalculateTotalPrice();
+////                    return;
+////                }
+
+////                // Create new basket item with only the necessary references
+////                var basketItem = new BasketItem
+////                {
+////                    BasketId = basket.Id,
+////                    ProductItemId = product.Id,
+////                    Quantity = 1
+////                };
+
+////                if (await _dataService.AddBasketItemAsync(basketItem))
+////                {
+
+////                    string message = "added item to cart";
+////                    var toast = Toast.Make(message, CommunityToolkit.Maui.Core.ToastDuration.Short, 10);
+////                    toast.Show();
+////                    // Reload the complete item with its navigation properties
+////                    basketItem = await _dataService.GetBasketItemAsync(basketItem.Id);
+
+
+////                    MainThread.BeginInvokeOnMainThread(() => {
+////                        BasketItems.Add(basketItem);
+////                        BadgeCounterService.SetCount(BadgeCounterService.Count + 1);
+////                    });
+
+////                    System.Diagnostics.Debug.WriteLine($"Successfully added {product.ProductName} to basket");
+////                }
+////                else
+////                {
+////                    System.Diagnostics.Debug.WriteLine($"Failed to add {product.ProductName} to basket");
+////                }
+////            }
+////            catch (Exception ex)
+////            {
+////                System.Diagnostics.Debug.WriteLine($"Error adding to basket: {ex.Message}");
+////                throw;
+////            }
+////        }
+
+////        [RelayCommand]
+////        public async Task RemoveItem(BasketItem item)
+////        {
+////            if (await _dataService.RemoveBasketItemAsync(item))
+////            {
+////                MainThread.BeginInvokeOnMainThread(() => {
+////                    BasketItems.Remove(item);
+////                    BadgeCounterService.SetCount(BadgeCounterService.Count - 1);
+////                });
+////            }
+////        }
+
+
+////        [RelayCommand]
+////        public async Task IncreaseQuantity(BasketItem item)
+////        {
+////            item.Quantity++;
+////            // You would need to add UpdateBasketItemAsync to your DataService
+////            // await _dataService.UpdateBasketItemAsync(item);
+////            CalculateTotalPrice();
+////        }
+
+////        [RelayCommand]
+////        public async Task DecreaseQuantity(BasketItem item)
+////        {
+////            if (item.Quantity > 1)
+////            {
+////                item.Quantity--;
+////                // You would need to add UpdateBasketItemAsync to your DataService
+////                // await _dataService.UpdateBasketItemAsync(item);
+////                CalculateTotalPrice();
+////            }
+////            else
+////            {
+////                // If quantity would become 0, remove the item
+////                await RemoveItem(item);
+////            }
+////        }
+
+
+////    }
+////}

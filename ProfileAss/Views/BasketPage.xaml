@@ -3,89 +3,78 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="ProfileAss.Views.BasketPage"
              xmlns:vm="clr-namespace:ProfileAss.ViewModel"
-              x:DataType="vm:BasketViewModel"
+             x:DataType="vm:BasketViewModel"
              xmlns:model="clr-namespace:ProfileAss.Model"
              Title="Cart">
-    <Grid>
-     
-
-            <CollectionView  
-                            
-                
-                  ItemsSource="{Binding BasketItems}" 
-                  VerticalOptions="Start"
-                  Grid.Row="1">
-
-            <!-- Empty State -->
-            <CollectionView.EmptyView>
-                <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
-                    <Label Text="Your cart is empty"
-                    FontSize="20"
-                    TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"
-                    HorizontalTextAlignment="Center"/>
-                    <Label Text="Items you save will appear here"
-                    FontSize="16"
-                    TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}"
-                    HorizontalTextAlignment="Center"
-                    Margin="0,10,0,0"/>
-                </StackLayout>
-            </CollectionView.EmptyView>
-            <CollectionView.ItemTemplate>
+    <Grid RowDefinitions="*, Auto">
+        <RefreshView Grid.Row="0" 
+                    Command="{Binding RefreshBasketCommand}"
+                    IsRefreshing="False">
+            <CollectionView ItemsSource="{Binding BasketItems}" 
+                          VerticalOptions="Fill">
+                <!-- Empty State -->
+                <CollectionView.EmptyView>
+                    <StackLayout VerticalOptions="Center" HorizontalOptions="Center">
+                        <Label Text="Your cart is empty"
+                               FontSize="20"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray400}}"
+                               HorizontalTextAlignment="Center"/>
+                        <Label Text="Items you save will appear here"
+                               FontSize="16"
+                               TextColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}"
+                               HorizontalTextAlignment="Center"
+                               Margin="0,10,0,0"/>
+                    </StackLayout>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="model:BasketItem">
                         <!-- Item Container Frame -->
                         <Frame CornerRadius="10"  
-                     Padding="10"
-                     Margin="20,10,20,0"
-                     HasShadow="True"
-                     BorderColor="Transparent">
+                               Padding="10"
+                               Margin="20,10,20,0"
+                               HasShadow="True"
+                               BorderColor="Transparent">
                             <Frame.Shadow>
                                 <Shadow Brush="Gray"
-                              Offset="20,20"
-                              Radius="50"
-                              Opacity="0.1"/>
+                                        Offset="20,20"
+                                        Radius="50"
+                                        Opacity="0.1"/>
                             </Frame.Shadow>
                             <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto">
                                 <!-- Product Image -->
                                 <Image Source="{Binding ProductItem.ImageName}"
-                        WidthRequest="90"
-                        HeightRequest="90"
-                        Aspect="AspectFill"
-                        VerticalOptions="Center"
-                        Margin="0,0,10,0"/>
+                                       WidthRequest="90"
+                                       HeightRequest="90"
+                                       Aspect="AspectFill"
+                                       VerticalOptions="Center"
+                                       Margin="0,0,10,0"/>
 
                                 <!-- Product Name and Quantity -->
                                 <VerticalStackLayout Grid.Column="1">
                                     <Label Text="{Binding ProductItem.ProductName}" 
-                            FontSize="18" 
-                            Padding="0,5,0,0"
-                            FontAttributes="Bold" 
-                            TextColor="Black" />
+                                           FontSize="18" 
+                                           Padding="0,5,0,0"
+                                           FontAttributes="Bold" 
+                                           TextColor="Black" />
                                     <Label Text="{Binding ProductItem.ProductDescription}" 
-                            FontSize="14" 
-                            Padding="0,5,0,0"
-                            TextColor="Gray" />
+                                           FontSize="14" 
+                                           Padding="0,5,0,0"
+                                           TextColor="Gray" />
                                     <Label Text="{Binding ProductItem.ProductPrice, StringFormat='R {0}'}" 
-                                 FontSize="16" 
-                                 TextColor="Green"
-                                 FontAttributes="Bold"   
-                                />
+                                           FontSize="16" 
+                                           TextColor="Green"
+                                           FontAttributes="Bold" />
                                 </VerticalStackLayout>
 
-
                                 <!-- Quantity Controls -->
-                                <HorizontalStackLayout Grid.Column="3"
-                                                
-                                                 Margin="0,35,0,0">
+                                <HorizontalStackLayout Grid.Column="2"
+                                                       Margin="0,35,0,0">
                                     <Border Stroke="{StaticResource PrimaryDarkText}"
-                                  WidthRequest="103"
-                                
-                                  HeightRequest="40"
-                                  Background="#ccc"
-                                  StrokeShape="RoundRectangle 10">
+                                            WidthRequest="103"
+                                            HeightRequest="40"
+                                            Background="#ccc"
+                                            StrokeShape="RoundRectangle 10">
                                         <HorizontalStackLayout>
-
-
-
                                             <Button Text="-" 
                                                     VerticalOptions="Center"
                                                     WidthRequest="35"
@@ -95,17 +84,14 @@
                                                     FontSize="28"
                                                     BackgroundColor="{StaticResource Primary}"
                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BasketViewModel}}, Path=DecreaseQuantityCommand}"
-                                                    CommandParameter="{Binding .}"
-                                            />
-                                            
-                                            <Label Text="{Binding Quantity}" 
+                                                    CommandParameter="{Binding .}" />
+
+                                            <Label Text="{Binding }" 
                                                    FontSize="18"
                                                    VerticalOptions="Center"
                                                    TextColor="{StaticResource PrimaryDarkText}"
                                                    HorizontalTextAlignment="Center"
-                                                   WidthRequest="30"
-                                     
-                                            />
+                                                   WidthRequest="30" />
 
                                             <Button Text="+" 
                                                     FontSize="28"
@@ -116,35 +102,58 @@
                                                     Padding="0,-3,0,5"
                                                     BackgroundColor="{StaticResource Primary}"
                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BasketViewModel}}, Path=IncreaseQuantityCommand}"
-                                                    CommandParameter="{Binding .} "
-                                    
-                                                         />
-
+                                                    CommandParameter="{Binding .}" />
                                         </HorizontalStackLayout>
-
                                     </Border>
-
                                 </HorizontalStackLayout>
-                                <ImageButton Grid.Column="3" 
-                              Grid.Row="0"
-                              Source="delete.png"
-                              WidthRequest="40"
-                              HeightRequest="40"
-                              Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveItemCommand}"
-                              CommandParameter="{Binding .}"
-                              HorizontalOptions="End"
-                              VerticalOptions="Start"
-                              Margin="0,-5,0,0"
-                              Padding="5"
-                              BorderWidth="0"/>
 
-
+                                <!-- Delete Button -->
+                                <ImageButton Grid.Column="2" 
+                                             Grid.Row="0"
+                                             Source="delete.png"
+                                             WidthRequest="40"
+                                             HeightRequest="40"
+                                             Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BasketViewModel}}, Path=RemoveItemCommand}"
+                                             CommandParameter="{Binding .}"
+                                             HorizontalOptions="End"
+                                             VerticalOptions="Start"
+                                             Margin="0,-5,0,0"
+                                             Padding="5"
+                                             BorderWidth="0"/>
                             </Grid>
                         </Frame>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+        </RefreshView>
 
-         
+        <!-- Total Price and Checkout Section -->
+        <Frame Grid.Row="1" 
+               BorderColor="LightGray" 
+               CornerRadius="0" 
+               Padding="20" 
+               Margin="0">
+            <Grid ColumnDefinitions="*,Auto">
+                <VerticalStackLayout Grid.Column="0">
+                    <Label Text="Total:" 
+                           FontSize="16" 
+                           TextColor="Gray"/>
+                    <Label Text="{Binding TotalPrice, StringFormat='R {0:F2}'}" 
+                           FontSize="24" 
+                           FontAttributes="Bold" 
+                           TextColor="Green"/>
+                </VerticalStackLayout>
+
+                <!-- Add a checkout button if needed -->
+                <Button Grid.Column="1" 
+                        Text="Checkout" 
+                        BackgroundColor="Green" 
+                        TextColor="White" 
+                        WidthRequest="150" 
+                        HeightRequest="50" 
+                        CornerRadius="25"
+                        VerticalOptions="Center"/>
+            </Grid>
+        </Frame>
     </Grid>
 </ContentPage>
