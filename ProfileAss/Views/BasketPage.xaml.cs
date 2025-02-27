@@ -13,7 +13,5 @@ public partial class BasketPage : ContentPage
 		
     }
 
-   
-
 
 }

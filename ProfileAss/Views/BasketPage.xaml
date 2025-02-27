@@ -86,7 +86,7 @@
                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:BasketViewModel}}, Path=DecreaseQuantityCommand}"
                                                     CommandParameter="{Binding .}" />
 
-                                            <Label Text="{Binding }" 
+                                            <Label Text="{Binding Quantity}" 
                                                    FontSize="18"
                                                    VerticalOptions="Center"
                                                    TextColor="{StaticResource PrimaryDarkText}"

@@ -89,55 +89,6 @@ namespace ProfileAss.ViewModel
 
 
 
-            //private async Task ShowImagePicker()
-            //{
-            //    try
-            //    {
-
-            //        var fileResult = await FilePicker.PickAsync(new PickOptions
-            //        {
-            //            PickerTitle = "Please select an image",
-            //            FileTypes = FilePickerFileType.Images
-            //        });
-
-
-            //        if (fileResult != null)
-            //        {
-
-            //            using var sourceStream = await fileResult.OpenReadAsync();
-            //            using var memorySteam = new MemoryStream();
-
-            //            //copy the stream to a memory
-            //            await sourceStream.CopyToAsync(memorySteam);
-            //            memorySteam.Position = 0;
-
-
-
-            //           var localPath=  await _dataService.UploadLocalAsync(fileResult.FileName, memorySteam);
-
-            //            // Update the Profile.imagePath
-            //            Profile.imagePath = localPath;
-
-            //            // Update the ProfileImage
-            //            ProfileImage = ImageSource.FromFile(localPath);
-
-            //        }
-            //    }
-            //    catch (Exception ex) {
-            //        System.Diagnostics.Debug.WriteLine($"Error uploading Image: {ex.Message}");
-            //        await App.Current.MainPage.DisplayAlert("error", "Failed to uploaud image", "Ok");
-            //        ProfileImage = "user.png";
-
-            //    }
-            //}
-
-
-
-            //public async Task<List<Profile>> GetAllAsync()
-            //{
-            //    return await _dataService;
-            //}
-
 
 
 
